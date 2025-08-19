@@ -1,0 +1,84 @@
+Necesito que desarrolles un proyecto completo de ROS 2 para leer un sensor DHT22 y publicar datos de temperatura y humedad. El proyecto debe ser funcional y seguir las mejores prácticas.
+
+REQUISITOS TÉCNICOS:
+
+**Hardware:**
+- Sensor DHT22 (temperatura y humedad)
+- Raspberry Pi (preferiblemente Pi 5, pero compatible con versiones anteriores)
+- Conexión GPIO (usar GPIO12 por defecto)
+
+**Software:**
+- ROS 2 (Humble o más reciente)
+- C++17 o superior
+- libgpiod para manejo de GPIO
+- Sistema operativo Linux (Raspberry Pi OS recomendado)
+
+**Funcionalidades:**
+1. Nodo ROS 2 que lee datos del sensor DHT22
+2. Publicación en tópicos ROS 2:
+   - `/dht22/temperature` (sensor_msgs/Temperature)
+   - `/dht22/humidity` (sensor_msgs/RelativeHumidity)
+3. Parámetros configurables:
+   - `chip_path`: Ruta del gpiochip (default: /dev/gpiochip4 para Pi 5)
+   - `gpio_line`: Línea GPIO (default: 12)
+   - `rate_hz`: Frecuencia de lectura (default: 0.5 Hz, máximo 0.5 Hz)
+   - `tries_per_sample`: Reintentos por muestra (default: 4)
+   - `frame_id`: ID del frame (default: "dht22_link")
+
+**Protocolo DHT22:**
+- Secuencia de inicio: LOW por 1.2ms
+- Handshake: LOW (~80μs), HIGH (~80μs), LOW (inicio bits)
+- Lectura de 40 bits (5 bytes)
+- Validación de checksum
+- Rango temperatura: -40°C a +80°C
+- Rango humedad: 0% a 100%
+
+**Estructura del Proyecto:**
+dht22_sensor/
+├── CMakeLists.txt
+├── package.xml
+├── src/
+│ └── dht22_node.cpp
+├── include/
+│ └── dht22_sensor/
+├── launch/
+│ └── dht22.launch.py
+└── README.md
+
+
+**Características Técnicas:**
+- Uso de libgpiod v1 para manejo de GPIO
+- Timing crítico usando busy-wait para operaciones precisas
+- Manejo robusto de errores y reintentos
+- Validación de datos y checksum
+- Gestión adecuada de recursos GPIO
+
+**Archivos a Generar:**
+
+1. **package.xml**: Configuración del paquete ROS 2
+2. **CMakeLists.txt**: Configuración de build con dependencias
+3. **dht22_node.cpp**: Nodo principal con implementación completa
+4. **dht22.launch.py**: Archivo de launch con parámetros configurables
+5. **README.md**: Documentación completa de instalación y uso
+
+**Consideraciones de Implementación:**
+- Usar `busy_sleep_us()` para timing crítico del protocolo DHT22
+- Implementar validación de checksum para verificar integridad de datos
+- Manejar apertura/cierre correcto de recursos GPIO
+- Implementar sistema de reintentos para lecturas fallidas
+- Validar rangos de temperatura y humedad
+- Usar logging ROS 2 apropiado (INFO, WARN, ERROR)
+
+**Instrucciones de Build:**
+- Usar ament_cmake como build system
+- Dependencias: rclcpp, sensor_msgs, libgpiod
+- Configurar pkg-config para libgpiod
+- Instalar ejecutables y archivos de launch
+
+**Instrucciones de Uso:**
+- Compilar con `colcon build`
+- Ejecutar con `ros2 launch dht22_sensor dht22.launch.py`
+- Parámetros configurables via argumentos de launch
+- Verificar datos con `ros2 topic echo /dht22/temperature` y `ros2 topic echo /dht22/humidity`
+
+Por favor, genera todos los archivos necesarios con código funcional y comentado. El proyecto debe compilar sin errores y funcionar correctamente en un Raspberry Pi con ROS 2.
